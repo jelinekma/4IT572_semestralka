@@ -25,8 +25,8 @@
         count: 1
         group: eshop
         aws_access_key: ASIA5LTGTUC7YWI5JRLL
-          aws_secret_key: fNOFcXub/ErgldB7ZQY7J/dsB8K4yXAr/w2pxLmr
-          security_token: FwoGZXIvYXdzEJ3//////////wEaDLu73hTHlu2coG3OWSLDAWBlUZ6bZi0/sy774V5ZBYLdC95o3esCgmQTvDyTRQmBu/S4st3O5Io+z4hTgbwCWGc3LN8WkIWfDKWBWpxvQMPWwB0A1vm+7J3894sMdZpBymtM/UJKGZmPa+P/6LJge447rLIkqxb50EuB37EQ+8Fatjb3eTqe3o3iCAycVz4YLk6FTc3x1X3zlw1P/CGCP1JJ4uNwVmw9xR5lGJ0WMEU6buwy+1bIjeWSxcwBJO50zwyYLlrKE/wXKX9mJEtQuPkAmyie4+7+BTItlbio81ufURspbZiMp802wt8MF1ZDHWcWqvfp+IVeB7X/yq4faauN5CsMJtgE
+        aws_secret_key: fNOFcXub/ErgldB7ZQY7J/dsB8K4yXAr/w2pxLmr
+        security_token: FwoGZXIvYXdzEJ3//////////wEaDLu73hTHlu2coG3OWSLDAWBlUZ6bZi0/sy774V5ZBYLdC95o3esCgmQTvDyTRQmBu/S4st3O5Io+z4hTgbwCWGc3LN8WkIWfDKWBWpxvQMPWwB0A1vm+7J3894sMdZpBymtM/UJKGZmPa+P/6LJge447rLIkqxb50EuB37EQ+8Fatjb3eTqe3o3iCAycVz4YLk6FTc3x1X3zlw1P/CGCP1JJ4uNwVmw9xR5lGJ0WMEU6buwy+1bIjeWSxcwBJO50zwyYLlrKE/wXKX9mJEtQuPkAmyie4+7+BTItlbio81ufURspbZiMp802wt8MF1ZDHWcWqvfp+IVeB7X/yq4faauN5CsMJtgE
       register: ec2
 
     - name: Add instance host to group
@@ -79,8 +79,8 @@
         state: 'absent'
         instance_ids: '{{ item.instance_id }}'
         aws_access_key: ASIA5LTGTUC7YWI5JRLL
-          aws_secret_key: fNOFcXub/ErgldB7ZQY7J/dsB8K4yXAr/w2pxLmr
-          security_token: FwoGZXIvYXdzEJ3//////////wEaDLu73hTHlu2coG3OWSLDAWBlUZ6bZi0/sy774V5ZBYLdC95o3esCgmQTvDyTRQmBu/S4st3O5Io+z4hTgbwCWGc3LN8WkIWfDKWBWpxvQMPWwB0A1vm+7J3894sMdZpBymtM/UJKGZmPa+P/6LJge447rLIkqxb50EuB37EQ+8Fatjb3eTqe3o3iCAycVz4YLk6FTc3x1X3zlw1P/CGCP1JJ4uNwVmw9xR5lGJ0WMEU6buwy+1bIjeWSxcwBJO50zwyYLlrKE/wXKX9mJEtQuPkAmyie4+7+BTItlbio81ufURspbZiMp802wt8MF1ZDHWcWqvfp+IVeB7X/yq4faauN5CsMJtgE
+        aws_secret_key: fNOFcXub/ErgldB7ZQY7J/dsB8K4yXAr/w2pxLmr
+        security_token: FwoGZXIvYXdzEJ3//////////wEaDLu73hTHlu2coG3OWSLDAWBlUZ6bZi0/sy774V5ZBYLdC95o3esCgmQTvDyTRQmBu/S4st3O5Io+z4hTgbwCWGc3LN8WkIWfDKWBWpxvQMPWwB0A1vm+7J3894sMdZpBymtM/UJKGZmPa+P/6LJge447rLIkqxb50EuB37EQ+8Fatjb3eTqe3o3iCAycVz4YLk6FTc3x1X3zlw1P/CGCP1JJ4uNwVmw9xR5lGJ0WMEU6buwy+1bIjeWSxcwBJO50zwyYLlrKE/wXKX9mJEtQuPkAmyie4+7+BTItlbio81ufURspbZiMp802wt8MF1ZDHWcWqvfp+IVeB7X/yq4faauN5CsMJtgE
       loop: "{{ ec2_info.instances }}"
       loop_control:
         label: "{{ item.instance_id }}"
