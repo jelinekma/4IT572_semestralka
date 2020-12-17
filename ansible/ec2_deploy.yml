@@ -1,0 +1,95 @@
+- name: Deploy to EC2
+  hosts: localhost
+  connection: local
+
+  tasks:
+    - name: Locate running EC2 instances
+      vars:
+        ansible_python_interpreter: /usr/local/bin/python3
+      ec2_instance_info:
+        region: us-east-1
+        aws_access_key: ASIA5LTGTUC7QQNDAWPX
+        aws_secret_key: oBaDmBBNRC4JFQr57j+JvLApmxZcKwSARJy4PxXo
+        security_token: FwoGZXIvYXdzEJr//////////wEaDMEgak28sRWSBhALICLDAbq7p99BagO5E3cNSqD4VE+WteOAbfzF46FXSfwy46Kb15XbMrJL3hJu/C4SMyVrwGRFJhoXPZrnzY1rp+5AfChjREFlrZWKMSmQ/7OGN+Ubm+imNU8dFzodUD5JqCPkqkl6YougNeu32HyZLQd2B1kotW90E2bBrR5/lCCRXML2c6wr5j+ry0dz0J1FsliH8qTv07rISv6fxJnhMyEbCEum1LKO+5SnrqHjMEQWHWwpNRzXsXnY2PdpPrfsoHpFuOKMeii6i+7+BTItue4kUjrxQm43lhfFXSWhOCpkwvl2b6YOCLvDoI7E9cl1LNDHYFsUS1XeSyf/
+      register: ec2_info
+    #- name: Debug
+    #  debug:
+    #    msg: "items: {{ ec2_info }}"
+    - name: Launch EC2 instance
+      ec2:
+        instance_type: t2.small
+        image: ami-085925f297f89fce1
+        region: us-east-1
+        key_name: test
+        vpc_subnet_id: subnet-0412680a
+        assign_public_ip: yes
+        wait: yes
+        count: 1
+        group: eshop
+        aws_access_key: ASIA5LTGTUC7QQNDAWPX
+        aws_secret_key: oBaDmBBNRC4JFQr57j+JvLApmxZcKwSARJy4PxXo
+        security_token: FwoGZXIvYXdzEJr//////////wEaDMEgak28sRWSBhALICLDAbq7p99BagO5E3cNSqD4VE+WteOAbfzF46FXSfwy46Kb15XbMrJL3hJu/C4SMyVrwGRFJhoXPZrnzY1rp+5AfChjREFlrZWKMSmQ/7OGN+Ubm+imNU8dFzodUD5JqCPkqkl6YougNeu32HyZLQd2B1kotW90E2bBrR5/lCCRXML2c6wr5j+ry0dz0J1FsliH8qTv07rISv6fxJnhMyEbCEum1LKO+5SnrqHjMEQWHWwpNRzXsXnY2PdpPrfsoHpFuOKMeii6i+7+BTItue4kUjrxQm43lhfFXSWhOCpkwvl2b6YOCLvDoI7E9cl1LNDHYFsUS1XeSyf/
+      register: ec2
+
+    - name: Add instance host to group
+      add_host: hostname={{ item.public_dns_name }} groupname=launched
+      with_items: '{{ec2.instances}}'
+
+    #- name: accept new ssh fingerprints
+    #  shell: ssh-keyscan -H {{ item.public_ip }} >> /home/circleci/.ssh/known_hosts
+    #  with_items: '{{ ec2.instances }}'
+
+    - name: Wait for SSH connection
+      wait_for: host={{ item.public_dns_name }} port=22 delay=30 timeout=300 state=started
+      with_items: '{{ec2.instances}}'
+
+- name: Configure EC2
+  hosts: launched
+  connection: ssh
+
+  tasks:
+    - name: Install docker
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+      become: yes
+    - service:
+        name: docker
+        state: started
+        enabled: yes
+      become: yes
+    - name: Get project files from docker
+      git:
+        repo: "https://github.com/jelinekma/4IT572_semestralka.git"
+        dest: ./app
+    - name: Build docker with eshop
+      shell: cd app && docker build -t myeshop:latest .
+      become: yes
+    - name: Run docker with eshop
+      shell: docker run -p 80:3000 myeshop
+      async: 120
+      poll: 0
+      become: yes
+    - wait_for:
+        port: 80
+
+- name: Terminate previous instances
+  hosts: localhost
+  connection: local
+
+  tasks:
+    #- name: Debug
+    #   debug:
+    #     msg: "items: {{ ec2_info }}"
+    - name: Terminate previous instances
+      ec2:
+        region: us-east-1
+        state: 'absent'
+        instance_ids: '{{ item.instance_id }}'
+        aws_access_key: ASIA5LTGTUC7QQNDAWPX
+        aws_secret_key: oBaDmBBNRC4JFQr57j+JvLApmxZcKwSARJy4PxXo
+        security_token: FwoGZXIvYXdzEJr//////////wEaDMEgak28sRWSBhALICLDAbq7p99BagO5E3cNSqD4VE+WteOAbfzF46FXSfwy46Kb15XbMrJL3hJu/C4SMyVrwGRFJhoXPZrnzY1rp+5AfChjREFlrZWKMSmQ/7OGN+Ubm+imNU8dFzodUD5JqCPkqkl6YougNeu32HyZLQd2B1kotW90E2bBrR5/lCCRXML2c6wr5j+ry0dz0J1FsliH8qTv07rISv6fxJnhMyEbCEum1LKO+5SnrqHjMEQWHWwpNRzXsXnY2PdpPrfsoHpFuOKMeii6i+7+BTItue4kUjrxQm43lhfFXSWhOCpkwvl2b6YOCLvDoI7E9cl1LNDHYFsUS1XeSyf/
+      loop: "{{ ec2_info.instances }}"
+      loop_control:
+        label: "{{ item.instance_id }}"

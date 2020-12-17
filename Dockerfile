@@ -3,10 +3,7 @@ FROM node:8
 COPY . .
 
 RUN npm install \
-	&& npm run start \
-	&& npm run test \
-	&& npm run build \
-	&& npm run wdio
+	&& npm run build
 	
 EXPOSE 3000
 
