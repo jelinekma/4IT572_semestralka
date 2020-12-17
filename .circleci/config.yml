@@ -34,7 +34,7 @@ jobs:
           fingerprints:
             - "46:af:f5:fb:b8:80:ba:9e:4c:43:09:05:55:43:fd:99"
       - ansible-playbook/playbook:
-          playbook: ../ansible/ec2_deploy.yml
+          playbook: ansible/ec2_deploy.yml
           playbook-options: --user ubuntu
 workflows:
   version: 2.1
@@ -46,4 +46,4 @@ workflows:
             - build
           filters:
             branches:
-              only: main
+              only: master
