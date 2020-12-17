@@ -1,36 +1,49 @@
-vse: &vse
-  docker:
-    - image: circleci/node:8.11.3
-
+vse:
+  docker: &vse
+    - image: 'circleci/node:8.11.3'
+ansible:
+  docker: &ansible
+    - image: 'circleci/python:latest'
+      environment:
+        ANSIBLE_HOST_KEY_CHECKING: no
 version: 2.1
+orbs:
+  ansible-playbook: orbss/ansible-playbook@0.0.5
 jobs:
   build:
-    <<: *vse
+    docker: *vse
     steps:
       - checkout
       - run: npm install
       - run: npm run test
-      - run: npm run build
+      - run: npm build
       - persist_to_workspace:
-         root: .
-         paths:
+          root: .
+          paths:
             - .
   deploy:
-     <<: *vse
-     steps:
-        - attach_workspace:
-           at: .
-        - run:
-           command: ansible-playbook ../ansible/ec2_deploy.yml --user ubuntu --key-file ../ansible/test.pem
-
+    docker: *ansible
+    steps:
+      - attach_workspace:
+          at: .
+      - ansible-playbook/install
+      - run:
+          command: |
+            sudo pip install boto boto3
+      - add_ssh_keys:
+          fingerprints:
+            - "46:af:f5:fb:b8:80:ba:9e:4c:43:09:05:55:43:fd:99"
+      - ansible-playbook/playbook:
+          playbook: ../ansible/ec2_deploy.yml
+          playbook-options: --user ubuntu
 workflows:
   version: 2.1
   build:
     jobs:
       - build
       - deploy:
-         requires:
+          requires:
             - build
-         filters:
+          filters:
             branches:
-               only: master
+              only: main
