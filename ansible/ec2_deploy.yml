@@ -8,13 +8,11 @@
         ansible_python_interpreter: /usr/local/bin/python3
       ec2_instance_info:
         region: us-east-1
-        aws_access_key: ASIA5LTGTUC7QQNDAWPX
-        aws_secret_key: oBaDmBBNRC4JFQr57j+JvLApmxZcKwSARJy4PxXo
-        security_token: FwoGZXIvYXdzEJr//////////wEaDMEgak28sRWSBhALICLDAbq7p99BagO5E3cNSqD4VE+WteOAbfzF46FXSfwy46Kb15XbMrJL3hJu/C4SMyVrwGRFJhoXPZrnzY1rp+5AfChjREFlrZWKMSmQ/7OGN+Ubm+imNU8dFzodUD5JqCPkqkl6YougNeu32HyZLQd2B1kotW90E2bBrR5/lCCRXML2c6wr5j+ry0dz0J1FsliH8qTv07rISv6fxJnhMyEbCEum1LKO+5SnrqHjMEQWHWwpNRzXsXnY2PdpPrfsoHpFuOKMeii6i+7+BTItue4kUjrxQm43lhfFXSWhOCpkwvl2b6YOCLvDoI7E9cl1LNDHYFsUS1XeSyf/
+        aws_access_key: ASIA5LTGTUC7YWI5JRLL
+        aws_secret_key: fNOFcXub/ErgldB7ZQY7J/dsB8K4yXAr/w2pxLmr
+        security_token: FwoGZXIvYXdzEJ3//////////wEaDLu73hTHlu2coG3OWSLDAWBlUZ6bZi0/sy774V5ZBYLdC95o3esCgmQTvDyTRQmBu/S4st3O5Io+z4hTgbwCWGc3LN8WkIWfDKWBWpxvQMPWwB0A1vm+7J3894sMdZpBymtM/UJKGZmPa+P/6LJge447rLIkqxb50EuB37EQ+8Fatjb3eTqe3o3iCAycVz4YLk6FTc3x1X3zlw1P/CGCP1JJ4uNwVmw9xR5lGJ0WMEU6buwy+1bIjeWSxcwBJO50zwyYLlrKE/wXKX9mJEtQuPkAmyie4+7+BTItlbio81ufURspbZiMp802wt8MF1ZDHWcWqvfp+IVeB7X/yq4faauN5CsMJtgE
       register: ec2_info
-    #- name: Debug
-    #  debug:
-    #    msg: "items: {{ ec2_info }}"
+
     - name: Launch EC2 instance
       ec2:
         instance_type: t2.small
@@ -26,18 +24,14 @@
         wait: yes
         count: 1
         group: eshop
-        aws_access_key: ASIA5LTGTUC7QQNDAWPX
-        aws_secret_key: oBaDmBBNRC4JFQr57j+JvLApmxZcKwSARJy4PxXo
-        security_token: FwoGZXIvYXdzEJr//////////wEaDMEgak28sRWSBhALICLDAbq7p99BagO5E3cNSqD4VE+WteOAbfzF46FXSfwy46Kb15XbMrJL3hJu/C4SMyVrwGRFJhoXPZrnzY1rp+5AfChjREFlrZWKMSmQ/7OGN+Ubm+imNU8dFzodUD5JqCPkqkl6YougNeu32HyZLQd2B1kotW90E2bBrR5/lCCRXML2c6wr5j+ry0dz0J1FsliH8qTv07rISv6fxJnhMyEbCEum1LKO+5SnrqHjMEQWHWwpNRzXsXnY2PdpPrfsoHpFuOKMeii6i+7+BTItue4kUjrxQm43lhfFXSWhOCpkwvl2b6YOCLvDoI7E9cl1LNDHYFsUS1XeSyf/
+        aws_access_key: ASIA5LTGTUC7YWI5JRLL
+          aws_secret_key: fNOFcXub/ErgldB7ZQY7J/dsB8K4yXAr/w2pxLmr
+          security_token: FwoGZXIvYXdzEJ3//////////wEaDLu73hTHlu2coG3OWSLDAWBlUZ6bZi0/sy774V5ZBYLdC95o3esCgmQTvDyTRQmBu/S4st3O5Io+z4hTgbwCWGc3LN8WkIWfDKWBWpxvQMPWwB0A1vm+7J3894sMdZpBymtM/UJKGZmPa+P/6LJge447rLIkqxb50EuB37EQ+8Fatjb3eTqe3o3iCAycVz4YLk6FTc3x1X3zlw1P/CGCP1JJ4uNwVmw9xR5lGJ0WMEU6buwy+1bIjeWSxcwBJO50zwyYLlrKE/wXKX9mJEtQuPkAmyie4+7+BTItlbio81ufURspbZiMp802wt8MF1ZDHWcWqvfp+IVeB7X/yq4faauN5CsMJtgE
       register: ec2
 
     - name: Add instance host to group
       add_host: hostname={{ item.public_dns_name }} groupname=launched
       with_items: '{{ec2.instances}}'
-
-    #- name: accept new ssh fingerprints
-    #  shell: ssh-keyscan -H {{ item.public_ip }} >> /home/circleci/.ssh/known_hosts
-    #  with_items: '{{ ec2.instances }}'
 
     - name: Wait for SSH connection
       wait_for: host={{ item.public_dns_name }} port=22 delay=30 timeout=300 state=started
@@ -79,17 +73,14 @@
   connection: local
 
   tasks:
-    #- name: Debug
-    #   debug:
-    #     msg: "items: {{ ec2_info }}"
     - name: Terminate previous instances
       ec2:
         region: us-east-1
         state: 'absent'
         instance_ids: '{{ item.instance_id }}'
-        aws_access_key: ASIA5LTGTUC7QQNDAWPX
-        aws_secret_key: oBaDmBBNRC4JFQr57j+JvLApmxZcKwSARJy4PxXo
-        security_token: FwoGZXIvYXdzEJr//////////wEaDMEgak28sRWSBhALICLDAbq7p99BagO5E3cNSqD4VE+WteOAbfzF46FXSfwy46Kb15XbMrJL3hJu/C4SMyVrwGRFJhoXPZrnzY1rp+5AfChjREFlrZWKMSmQ/7OGN+Ubm+imNU8dFzodUD5JqCPkqkl6YougNeu32HyZLQd2B1kotW90E2bBrR5/lCCRXML2c6wr5j+ry0dz0J1FsliH8qTv07rISv6fxJnhMyEbCEum1LKO+5SnrqHjMEQWHWwpNRzXsXnY2PdpPrfsoHpFuOKMeii6i+7+BTItue4kUjrxQm43lhfFXSWhOCpkwvl2b6YOCLvDoI7E9cl1LNDHYFsUS1XeSyf/
+        aws_access_key: ASIA5LTGTUC7YWI5JRLL
+          aws_secret_key: fNOFcXub/ErgldB7ZQY7J/dsB8K4yXAr/w2pxLmr
+          security_token: FwoGZXIvYXdzEJ3//////////wEaDLu73hTHlu2coG3OWSLDAWBlUZ6bZi0/sy774V5ZBYLdC95o3esCgmQTvDyTRQmBu/S4st3O5Io+z4hTgbwCWGc3LN8WkIWfDKWBWpxvQMPWwB0A1vm+7J3894sMdZpBymtM/UJKGZmPa+P/6LJge447rLIkqxb50EuB37EQ+8Fatjb3eTqe3o3iCAycVz4YLk6FTc3x1X3zlw1P/CGCP1JJ4uNwVmw9xR5lGJ0WMEU6buwy+1bIjeWSxcwBJO50zwyYLlrKE/wXKX9mJEtQuPkAmyie4+7+BTItlbio81ufURspbZiMp802wt8MF1ZDHWcWqvfp+IVeB7X/yq4faauN5CsMJtgE
       loop: "{{ ec2_info.instances }}"
       loop_control:
         label: "{{ item.instance_id }}"
